@@ -1,0 +1,93 @@
+ NestJS:
+
+A structured backend framework on top of Node.js (like Spring Boot in Java)
+
+Key ideas:
+Uses modules, controllers, services
+Built on Express/Fastify
+Encourages clean architecture
+
+Module is a logical container that groups related providers, controllers, and imports.
+What exists (providers)
+What is exposed (exports)
+What it depends on (imports)
+----------------------------------------------------------------
+Prisma :
+is an ORM (Object Relational Mapper)
+
+Meaning:
+Instead of writing raw SQL:
+
+SELECT * FROM transactions;
+
+You write:
+prisma.transaction.findMany()
+
+What Prisma gives you:
+Type safety (VERY important)
+Auto-generated queries
+Schema-driven DB design - Your database structure is defined in one central schema file, and everything (tables, queries, types) is generated from it.
+
+prisma (CLI)
+Runs in terminal
+Used for setup
+
+Prisma Client
+Used in your code
+Talks to DB
+
+---------------------------------------------------------------------------------
+SQL (Structured Query Language) is a language
+
+It’s like:
+A way to “talk to databases”
+
+Example:
+SELECT * FROM Transaction;
+
+👉 Meaning:
+“Give me all transactions”
+----------------------------------------------------------------------------
+MySQL:
+is a relational database
+
+Key concepts:
+Tables (like Excel sheets)
+Rows (records)
+Columns (fields)
+
+
+schema.prisma  ex: I want a table with id and amount
+You define structure
+
+↓ 
+
+(prisma CLI runs)   : npx prisma migrate dev,Creates table in MySQL
+↓  
+
+Generates Prisma Client - generates code for u,ex: prisma.transaction.create(),prisma.transaction.findMany()
+u didn't write those queries,its written by prsima client-inbuilt 
+
+↓ 
+
+Your code uses Prisma Client  
+const prisma = new PrismaClient();
+await prisma.transaction.create({
+  data: { amount: 500 }
+});
+
+↓ 
+
+Prisma Client → calls Prisma Query Engine → which generates SQL → executes on DB
+Converts your code into SQL:SELECT * FROM Transaction;
+
+↓ 
+
+MySQL receives that SQL and executes it:
+Reads table
+Fetches rows
+Returns data
+
+Flow of data 
+Client → Controller → Service → Prisma → MySQL
+
