@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client/extension';
+import { Injectable } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
 
 @Injectable()
-export class PrismaService extends PrismaClient{}
+export class PrismaService extends PrismaClient { }
+
 //“Create a NestJS service that internally is a PrismaClient”
 // NestJS starts
 //    ↓

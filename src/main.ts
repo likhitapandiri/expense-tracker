@@ -7,7 +7,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-
+console.log("ENV:", process.env.DATABASE_URL);
 
 // NestFactory.create(AppModule) 
 //  Creates application context

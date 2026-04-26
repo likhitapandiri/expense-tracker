@@ -91,3 +91,47 @@ Returns data
 Flow of data 
 Client → Controller → Service → Prisma → MySQL
 
+------------------------------------------------------------------------------------------------------------------------------------------
+in expense - CRUD didnt used await 
+await is only required when u want to handle the result inside the fucn 
+otherwise just return the promise - nestJs(framework) will handle it 
+
+Return promise → someone else awaits  
+Use await → you handle result
+
+You are returning the Promise, so it keeps flowing up until someone (NestJS) awaits it
+Client → Controller → Service → Prisma → DB
+                ← Promise  ← Promise ← Promise
+NestJS awaits → gets result → sends response
+
+
+NestJS only waits for the final returned value, It does NOT control or wait for steps inside your function
+
+| Without `await`              | With `await`             |
+| ---------------------------- | ------------------------ |
+| Doesn’t wait inside function | Waits inside function    |
+| Returns Promise immediately  | Returns after processing |
+| Cannot safely use result     | Can use result           |
+
+
+Promises don’t care WHO awaits them
+A Promise is just:“I will give result in future”
+
+It doesn’t matter:
+who created it
+who returned it
+who finally awaits it
+
+const p = this.prisma.expense.create();   p=Promise 
+createExpense() {
+  return p;
+}   Service is NOT aware of anything,Just passing the Promise upward
+create() {
+  return this.expenseService.createExpense();
+}   Still just passing the same Promise
+const result = await controllerMethod();   “Okay, I will wait for this Promise”
+
+
+so in any layer either it is controller,service or any other 
+If you TOUCH the result (means if u are dng anything with result even logging because the result is p(Promise))→ you need await  
+If you just PASS the result → no await needed NestJs handles it 
