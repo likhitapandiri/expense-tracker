@@ -6,14 +6,9 @@ export class ExpenseController {
     constructor(private readonly expenseService : ExpenseService) {}
 
 
-    @Post()
-    create(@Body() body){
-        return this.expenseService.createExpense(body);
-    }
-
-    @Get()
-    getexpenses(){
-        return this.expenseService.getAllExpenses();
+    @Post(':id')
+    create(@Body() body,@Param('id')id:string){
+        return this.expenseService.createExpense(body,Number(id));
     }
 
     @Put(':id')

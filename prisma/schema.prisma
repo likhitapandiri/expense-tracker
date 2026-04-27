@@ -12,16 +12,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Transaction {
-  id        Int      @id @default(autoincrement())
-  amount    Float
-  category  String
+model User{
+  id   Int    @id @default(autoincrement())
+  name String 
+  email String @unique
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  expenses Expense[]
+
 }
 
 model Category {
   id       Int       @id @default(autoincrement())
-  name     String
+  name     String     @unique
   expenses Expense[]
 }
 
@@ -31,6 +34,10 @@ model Expense {
   description String
   date        DateTime
   categoryId  Int
+  userId      Int 
+  user        User @relation(fields:[userId],references:[id])
   category    Category @relation(fields: [categoryId], references: [id])
 }
+
+
 

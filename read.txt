@@ -135,3 +135,13 @@ const result = await controllerMethod();   “Okay, I will wait for this Promise
 so in any layer either it is controller,service or any other 
 If you TOUCH the result (means if u are dng anything with result even logging because the result is p(Promise))→ you need await  
 If you just PASS the result → no await needed NestJs handles it 
+
+-----------------------------------------------
+findUnique - Use when Field is UNIQUE or PRIMARY KEY,Uses index directly → fastest,Returns exactly 1 or null
+findFirst - Field is NOT unique , You just want any one matching record
+findMany - Used when more than 1 row of data is needed
+
+upsert - can be used no need of pre querying(get) and then create - db query optimizan 
+
+NOTNULL constraint in DB - this field should not be null
+

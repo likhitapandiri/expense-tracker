@@ -6,21 +6,38 @@ export class ExpenseService {
 
     constructor(private readonly prisma: PrismaService) { }
 
-    async createExpense(data: any) {
-        return this.prisma.expense.create({
-            data: {
-                amount: data.amount,
-                description: data.description,
-                date: new Date(), 
-                categoryId: data.categoryId,
-            },
-        });
-    }
+    async createExpense(data: any,id:number) {
+        // const user=await this.prisma.user.findUnique({
+        //     where:{id},
+        // });
+        // if(!user){
+        //     throw new Error('User not found');
+        // }
+        // return this.prisma.expense.create({
+        //     data: {
+        //         amount: data.amount,
+        //         description: data.description,
+        //         date: new Date(), 
+        //         categoryId: data.categoryId,
+        //         userId:user.id,
+        //     },
+        // });
+        
+        //no pre-query- let db handle it
+        try {
+            return this.prisma.expense.create({
+                data: {
+                    amount: data.amount,
+                    description: data.description,
+                    date: new Date(),
+                    categoryId: data.categoryId,
+                    userId: id,
+                },
+            })
 
-    async getAllExpenses() {
-        return this.prisma.expense.findMany({
-            include: { category: true },
-        });
+        } catch (err: any) {
+            throw new Error("Invalid user or category");
+        }
     }
 
     async updateExpense(id:number,data:any){
