@@ -145,3 +145,35 @@ upsert - can be used no need of pre querying(get) and then create - db query opt
 
 NOTNULL constraint in DB - this field should not be null
 
+------------------------------------------------------------------------------------
+“what to import and export?”
+
+✅ Export:
+Services (most common)
+Guards (if reused)
+Shared providers
+❌ Do NOT export:
+Controllers
+Internal-only helpers
+✅ Import:
+Modules (not services)
+
+
+async creates a Promise-based function
+await makes async code look synchronous
+
+
+What goes in constants?Things that:
+Don’t change per environment
+Are safe to expose
+Are part of your business logic
+Enum-like values
+App-level fixed configs
+Static mappings
+
+
+What goes in .env?Things that:
+Change per environment (dev / prod / staging)
+Are secrets
+Depend on deployment
+

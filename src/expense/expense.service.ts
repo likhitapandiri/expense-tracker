@@ -23,13 +23,13 @@ export class ExpenseService {
         //     },
         // });
         
-        //no pre-query- let db handle it
+        //no pre-query- let db handle the err of foreign key existence and we can catch it 
         try {
             return this.prisma.expense.create({
                 data: {
                     amount: data.amount,
                     description: data.description,
-                    date: new Date(),
+                    date: new Date(data.date),
                     categoryId: data.categoryId,
                     userId: id,
                 },
@@ -46,7 +46,7 @@ export class ExpenseService {
             data: {
                 amount: data.amount,
                 description: data.description,
-                date: new Date(),
+                date: new Date(data.date),
                 categoryId: data.categoryId,
             },
         });
@@ -57,6 +57,5 @@ export class ExpenseService {
             where:{id},
         })
     }
-
 
 }

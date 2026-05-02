@@ -18,13 +18,13 @@ export class UserController {
         return this.userService.getUserByEmail(email);
     }
 
-    //get user with expenses-- user+expenses
+    //get user with expenses-- user+expenses leftJoin
     @Get(':id')
     getUserExpense(@Param('id') id:string){
         return this.userService.getUserExpenses(Number(id));
     }
 
-    //get expenses by user-- only expenses
+    //get expenses by user-- only expenses 
     @Get('expense/:id')
     getExpensesByUser(@Param('id') id: string) {
         return this.userService.getExpensesByUser(Number(id));
