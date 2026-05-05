@@ -36,9 +36,14 @@ export class UserService {
     }
 
     async getExpensesByUser(id:number){
-       return this.prisma.expense.findMany({
-        where:{userId:id},
-       })
+
+        //tried with remvong and adding index
+        console.time("index");
+        const expenses=await this.prisma.expense.findMany({
+            where: { userId: id },
+        });
+        console.timeEnd("index");
+        return expenses ;
     }
 
 

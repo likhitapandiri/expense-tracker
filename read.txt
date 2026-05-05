@@ -177,3 +177,12 @@ Change per environment (dev / prod / staging)
 Are secrets
 Depend on deployment
 
+
+
+----------------------------------------------
+PHASE 4 indexing 
+
+EXPLAIN SELECT * FROM Expense where categoryId=1;
+without index it shows type as all which means it scanned everything 
+and if u have index on that table and either u scanned indexed filed or any other in filter type will be ref 
+and u can see in the possible keys if u are using index it give key with _idx
