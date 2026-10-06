@@ -30,3 +30,10 @@ import { HealthModule } from './health/health.module';
   providers: [AppService],
 })
 export class AppModule {}
+
+
+/*
+imports: Bring the providers exported by these modules into this module 's dependency-injection scope.
+providers : classes that Nest should create/manage through Dependency Injection inside this module.
+exports : Other modules are allowed to use this provider.
+*/

@@ -186,3 +186,46 @@ EXPLAIN SELECT * FROM Expense where categoryId=1;
 without index it shows type as all which means it scanned everything 
 and if u have index on that table and either u scanned indexed filed or any other in filter type will be ref 
 and u can see in the possible keys if u are using index it give key with _idx
+
+
+
+---------------------
+
+Strategy
+
+Defines how authentication happens.
+    Example: JwtStrategy, LocalStrategy, GoogleStrategy.
+JWT strategy:
+Extracts JWT
+Verifies JWT
+validate() finds / validates the user
+Think: "Who are you?"
+
+Guard
+
+Decides whether a request can access a route.
+Runs before the controller.
+    Example:
+JwtAuthGuard → must be logged in
+    RolesGuard → must have required role
+OwnershipGuard → must own the resource
+Think: "Are you allowed here?"
+
+
+
+Passport -> authentication middleware/framework for Node.js.  Authentication framework that connects guards and strategies.
+   │
+   ├── Local Strategy
+   │      email + password
+   │
+   ├── JWT Strategy
+   │      JWT token
+   │
+   ├── Google Strategy
+   │      Google OAuth
+   │
+   ├── GitHub Strategy
+   │      GitHub OAuth
+   │
+   └── Facebook Strategy
+          Facebook OAuth
