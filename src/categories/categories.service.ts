@@ -207,4 +207,24 @@ export class CategoriesService {
             );
         }
     }
+
+    async validateCategoryForUser(
+        userId: number,
+        categoryId: number,
+    ): Promise<void> {
+        const category = await this.prisma.category.findFirst({
+            where: {
+                id: categoryId,
+                OR: [
+                    { userId },
+                    { userId: null, isDefault: true },
+                ],
+            },
+            select: { id: true },
+        });
+
+        if (!category) {
+            throw new NotFoundException('Category not found');
+        }
+    }
 }
