@@ -1,32 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import type { AuthUser } from 'src/common/types/request-user.type';
 
-@Controller('user')
-export class UserController {
-    constructor(private readonly userService: UserService) { }
-
-    @Post()
-    create(@Body() body) {
-        return this.userService.createUser(body);
-    }
-
-    @Get()
-    getUserByEmail(@Query('email') email: string) {
-        if (!email) {
-            throw new Error('Email is required');
-        }
-        return this.userService.getUserByEmail(email);
-    }
-
-    //get user with expenses-- user+expenses leftJoin
-    @Get(':id')
-    getUserExpense(@Param('id') id:string){
-        return this.userService.getUserExpenses(Number(id));
-    }
-
-    //get expenses by user-- only expenses 
-    @Get('expense/:id')
-    getExpensesByUser(@Param('id') id: string) {
-        return this.userService.getExpensesByUser(Number(id));
+@Controller('users')
+@UseGuards(JwtAuthGuard)
+export class UsersController {
+    @Get('me')
+    getMe(@CurrentUser() user: AuthUser) {
+        return user;
     }
 }
