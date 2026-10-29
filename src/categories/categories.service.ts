@@ -140,7 +140,7 @@ export class CategoriesService {
                 id: true,
                 _count: {
                     select: {
-                        expenses: true,
+                        transactions: true,
                     },
                 },
             },
@@ -150,7 +150,7 @@ export class CategoriesService {
             throw new NotFoundException('Category not found');
         }
 
-        if (category._count.expenses > 0) {
+        if (category._count.transactions > 0) {
             throw new BadRequestException(
                 'Cannot delete a category that is used by expenses',
             );

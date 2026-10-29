@@ -4,7 +4,7 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, TransactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CategoriesService } from '../categories/categories.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -22,7 +22,9 @@ export class ExpensesService {
         const amount = new Prisma.Decimal(dto.amount);
 
         if (amount.lte(0)) {
-            throw new BadRequestException('Amount must be greater than zero');
+            throw new BadRequestException(
+                'Amount must be greater than zero',
+            );
         }
 
         await this.categoriesService.validateCategoryForUser(
@@ -30,8 +32,9 @@ export class ExpensesService {
             dto.categoryId,
         );
 
-        return this.prisma.expense.create({
+        return this.prisma.transaction.create({
             data: {
+                type: TransactionType.EXPENSE,
                 amount,
                 description: dto.description?.trim() || null,
                 date: new Date(dto.date),
@@ -40,6 +43,7 @@ export class ExpensesService {
             },
             select: {
                 id: true,
+                type: true,
                 amount: true,
                 description: true,
                 date: true,
@@ -74,9 +78,10 @@ export class ExpensesService {
                 ? Number(query.categoryId)
                 : undefined;
 
-
         if (limit > 100) {
-            throw new BadRequestException('Limit cannot exceed 100');
+            throw new BadRequestException(
+                'Limit cannot exceed 100',
+            );
         }
 
         if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
@@ -88,7 +93,9 @@ export class ExpensesService {
         if (
             minAmount !== undefined &&
             maxAmount !== undefined &&
-            new Prisma.Decimal(minAmount).gt(new Prisma.Decimal(maxAmount))
+            new Prisma.Decimal(minAmount).gt(
+                new Prisma.Decimal(maxAmount),
+            )
         ) {
             throw new BadRequestException(
                 'minAmount cannot exceed maxAmount',
@@ -104,7 +111,7 @@ export class ExpensesService {
         if (endDate) {
             const end = new Date(endDate);
 
-            // Treat YYYY-MM-DD end dates as inclusive whole days.
+            // Include the entire day for YYYY-MM-DD inputs.
             if (/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
                 end.setUTCHours(23, 59, 59, 999);
             }
@@ -112,8 +119,9 @@ export class ExpensesService {
             dateFilter.lte = end;
         }
 
-        const where: Prisma.ExpenseWhereInput = {
+        const where: Prisma.TransactionWhereInput = {
             userId,
+            type: TransactionType.EXPENSE,
             ...(categoryId !== undefined ? { categoryId } : {}),
             ...(startDate || endDate ? { date: dateFilter } : {}),
             ...(minAmount !== undefined || maxAmount !== undefined
@@ -133,7 +141,7 @@ export class ExpensesService {
         const skip = (page - 1) * limit;
 
         const [expenses, total] = await Promise.all([
-            this.prisma.expense.findMany({
+            this.prisma.transaction.findMany({
                 where,
                 skip,
                 take: limit,
@@ -143,6 +151,7 @@ export class ExpensesService {
                 ],
                 select: {
                     id: true,
+                    type: true,
                     amount: true,
                     description: true,
                     date: true,
@@ -158,7 +167,7 @@ export class ExpensesService {
                 },
             }),
 
-            this.prisma.expense.count({ where }),
+            this.prisma.transaction.count({ where }),
         ]);
 
         return {
@@ -173,13 +182,15 @@ export class ExpensesService {
     }
 
     async findOne(userId: number, expenseId: number) {
-        const expense = await this.prisma.expense.findFirst({
+        const expense = await this.prisma.transaction.findFirst({
             where: {
                 id: expenseId,
                 userId,
+                type: TransactionType.EXPENSE,
             },
             select: {
                 id: true,
+                type: true,
                 amount: true,
                 description: true,
                 date: true,
@@ -207,10 +218,10 @@ export class ExpensesService {
         expenseId: number,
         dto: UpdateExpenseDto,
     ) {
-        // Verify ownership before making changes.
+        // Verify that this is the user's expense, not an income transaction.
         await this.findOne(userId, expenseId);
 
-        const data: Prisma.ExpenseUncheckedUpdateInput = {};
+        const data: Prisma.TransactionUncheckedUpdateInput = {};
 
         if (dto.amount !== undefined) {
             const amount = new Prisma.Decimal(dto.amount);
@@ -241,35 +252,30 @@ export class ExpensesService {
             data.categoryId = dto.categoryId;
         }
 
-        return this.prisma.expense.update({
+        // updateMany lets us enforce ownership and transaction type
+        // in the write itself, avoiding an ownership race between reads.
+        const result = await this.prisma.transaction.updateMany({
             where: {
                 id: expenseId,
                 userId,
+                type: TransactionType.EXPENSE,
             },
             data,
-            select: {
-                id: true,
-                amount: true,
-                description: true,
-                date: true,
-                categoryId: true,
-                category: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
-                createdAt: true,
-                updatedAt: true,
-            },
         });
+
+        if (result.count === 0) {
+            throw new NotFoundException('Expense not found');
+        }
+
+        return this.findOne(userId, expenseId);
     }
 
     async remove(userId: number, expenseId: number) {
-        const result = await this.prisma.expense.deleteMany({
+        const result = await this.prisma.transaction.deleteMany({
             where: {
                 id: expenseId,
                 userId,
+                type: TransactionType.EXPENSE,
             },
         });
 
@@ -277,6 +283,8 @@ export class ExpensesService {
             throw new NotFoundException('Expense not found');
         }
 
-        return { message: 'Expense deleted successfully' };
+        return {
+            message: 'Expense deleted successfully',
+        };
     }
 }
